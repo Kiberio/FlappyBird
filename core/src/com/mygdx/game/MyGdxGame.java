@@ -142,7 +142,7 @@ public class MyGdxGame extends ApplicationAdapter {
 				gravidade = -15;
 				somVoando.play();
 			}
-			posicaoCanoVertical -= Gdx.graphics.getDeltaTime() * 200;
+			posicaoCanoHorizontal -= Gdx.graphics.getDeltaTime() * 200;
 			if (posicaoCanoHorizontal < -canoTopo.getWidth()) {
 				posicaoCanoHorizontal = larguraDispositivo;
 				posicaoCanoVertical = random.nextInt(400) - 200;
@@ -203,8 +203,8 @@ public class MyGdxGame extends ApplicationAdapter {
 		batch.draw(fundo, 0 , 0 , larguraDispositivo, alturaDispositivo);
 		batch.draw(passaros[(int) variacao],
 				50 + posicaoHorizontalPassaro,posicaoInicialVerticalPassaro);
-		batch.draw(canoBaixo, posicaoCanoHorizontal, alturaDispositivo / 1 - canoBaixo.getHeight() - espacoEntreCanos / 1 + posicaoCanoVertical);
-		batch.draw(canoTopo, posicaoCanoHorizontal, alturaDispositivo / 1 + espacoEntreCanos / 1 + posicaoCanoVertical);
+		batch.draw(canoBaixo, posicaoCanoHorizontal, alturaDispositivo / 2 - canoBaixo.getHeight() - espacoEntreCanos / 2 + posicaoCanoVertical);
+		batch.draw(canoTopo, posicaoCanoHorizontal, alturaDispositivo / 2 + espacoEntreCanos / 2 + posicaoCanoVertical);
 		textoPontucao.draw(batch, String.valueOf(pontos), larguraDispositivo / 2, alturaDispositivo -110);
 
 		if(estadoJogo == 2)
