@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import java.util.Random;
 
 public class MyGdxGame extends ApplicationAdapter {
+    //Variaveis
 	private SpriteBatch batch;
 	private Texture[] passaros;
 	private Texture fundo;
@@ -61,13 +62,13 @@ public class MyGdxGame extends ApplicationAdapter {
 	private final float VIRTUAL_WIDTH = 720; //720
 	private final float VIRTUAL_HEIGHT = 1280; //1280
 
-
+	//Iniciar Texturas e os objetos
 	@Override
 	public void create() {
 		inicializarTexturas();
 		inicializaObjetos();
 	}
-
+	//
 	@Override
 	public void render() {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -78,6 +79,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		detectarColisoes();
 	}
 
+	//iniciar todas os sprits do jogo
 	private void inicializarTexturas() {
 		passaros = new Texture[3];
 		passaros[0] = new Texture("passaro1.png");
@@ -93,30 +95,35 @@ public class MyGdxGame extends ApplicationAdapter {
 	private void inicializaObjetos() {
 		batch = new SpriteBatch();
 		random = new Random();
-
+		//Alocar valores nas variaveis
 		larguraDispositivo = VIRTUAL_WIDTH;
 		alturaDispositivo = VIRTUAL_HEIGHT;
 		posicaoInicialVerticalPassaro = alturaDispositivo / 2;
 		posicaoCanoHorizontal = larguraDispositivo;
 		espacoEntreCanos = 350;
 
+		//Configurar a fonte da pontuação
 		textoPontucao = new BitmapFont();
 		textoPontucao.setColor(com.badlogic.gdx.graphics.Color.WHITE);
-		textoPontucao.getData().setScale(10);
+		textoPontucao.getData().setScale(5);
 
+		//Configurar fonte  para reiniciar jogo
 		textoReiniciar = new BitmapFont();
 		textoReiniciar.setColor(com.badlogic.gdx.graphics.Color.GREEN);
 		textoReiniciar.getData().setScale(2);
 
+		//Configurar fonte do record
 		textoMelhorPontuacao = new BitmapFont();
 		textoMelhorPontuacao.setColor(com.badlogic.gdx.graphics.Color.RED);
 		textoMelhorPontuacao.getData().setScale(2);
+
 
 		shapeRenderer = new ShapeRenderer();
 		circuloPassaro = new Circle();
 		retanguloCanoBaixo = new Rectangle();
 		retanguloCanoCima = new Rectangle();
 
+		//Iniciar sons
 		somVoando = Gdx.audio.newSound(Gdx.files.internal("som_asa.wav"));
 		somColisao = Gdx.audio.newSound(Gdx.files.internal("som_batida.wav"));
 		somPontuacao = Gdx.audio.newSound(Gdx.files.internal("som_pontos.wav"));
@@ -128,29 +135,34 @@ public class MyGdxGame extends ApplicationAdapter {
 		camera.position.set(VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, 0);
 		viewport = new StretchViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
 	}
+	//Função que muda o estado do jogo
 	private void verificarEstadoJogo() {
 		boolean toqueTela = Gdx.input.justTouched();
+		//Estado 0: Toque para iniciar o jogo
 		if (estadoJogo == 0) {
 			if (toqueTela) {
 				gravidade = -15;
 				estadoJogo = 1;
 				somVoando.play();
 			}
-
+			//Estado 1: Jogo
 		} else if (estadoJogo == 1) {
 			if (toqueTela) {
 				gravidade = -15;
 				somVoando.play();
 			}
+			//fazer os canos aparecer em lugares aleatorios
 			posicaoCanoHorizontal -= Gdx.graphics.getDeltaTime() * 200;
 			if (posicaoCanoHorizontal < -canoTopo.getWidth()) {
 				posicaoCanoHorizontal = larguraDispositivo;
 				posicaoCanoVertical = random.nextInt(400) - 200;
 				passouCano = false;
 			}
+			//pocisão inicial do passaro
 			if (posicaoInicialVerticalPassaro > 0 || toqueTela)
 				posicaoInicialVerticalPassaro = posicaoInicialVerticalPassaro - gravidade;
 			gravidade++;
+			//Estado 2: Tela de game over
 		} else if (estadoJogo == 2) {
 			if (pontos > pontuacaoMaxima) {
 				pontuacaoMaxima = pontos;
@@ -159,7 +171,7 @@ public class MyGdxGame extends ApplicationAdapter {
 			}
 			posicaoHorizontalPassaro -= Gdx.graphics.getDeltaTime() * 500;
 
-
+			//Reiniciar jogo
 			if (toqueTela) {
 				estadoJogo = 0;
 				pontos = 0;
@@ -172,11 +184,12 @@ public class MyGdxGame extends ApplicationAdapter {
 	}
 	private void detectarColisoes()
 	{
+		//criando colisão do passaro
 		circuloPassaro.set(
 				50 + posicaoHorizontalPassaro + passaros[0].getWidth() / 2,
 				posicaoInicialVerticalPassaro + passaros[0].getHeight() / 2,
 				passaros[0].getWidth() / 2);
-
+		//criando colisão dos canos
 		retanguloCanoBaixo.set(
 				posicaoCanoHorizontal, alturaDispositivo /2 - canoBaixo.getHeight() - espacoEntreCanos / 2 + posicaoCanoVertical,
 				canoBaixo.getWidth(), canoBaixo.getHeight());
@@ -185,6 +198,7 @@ public class MyGdxGame extends ApplicationAdapter {
 				posicaoCanoHorizontal, alturaDispositivo / 2 + espacoEntreCanos / 2 + posicaoCanoVertical,
 				canoTopo.getWidth(), canoTopo.getHeight());
 
+		//Sistema para detectar se Colidiu com o cano de baixo ou de cima
 		boolean colidiuCanoCima = Intersector.overlaps(circuloPassaro, retanguloCanoCima);
 		boolean colidiuCanoBaixo = Intersector.overlaps(circuloPassaro, retanguloCanoBaixo);
 
@@ -200,18 +214,22 @@ public class MyGdxGame extends ApplicationAdapter {
 	{
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
+		//Cria o fundo
 		batch.draw(fundo, 0 , 0 , larguraDispositivo, alturaDispositivo);
+		//Desenha o passaro e as variaveis
 		batch.draw(passaros[(int) variacao],
 				50 + posicaoHorizontalPassaro,posicaoInicialVerticalPassaro);
+		//Desenha os canos
 		batch.draw(canoBaixo, posicaoCanoHorizontal, alturaDispositivo / 2 - canoBaixo.getHeight() - espacoEntreCanos / 2 + posicaoCanoVertical);
 		batch.draw(canoTopo, posicaoCanoHorizontal, alturaDispositivo / 2 + espacoEntreCanos / 2 + posicaoCanoVertical);
 		textoPontucao.draw(batch, String.valueOf(pontos), larguraDispositivo / 2, alturaDispositivo -110);
 
+		//Desenhar a tela de game over
 		if(estadoJogo == 2)
 		{
 			batch.draw(gameOver, larguraDispositivo / 2 - gameOver.getWidth()/2, alturaDispositivo /2);
 			textoReiniciar.draw(batch, "Toque para reiniciar!", larguraDispositivo/2 -140, alturaDispositivo /2 - gameOver.getHeight()/2);
-			textoMelhorPontuacao.draw(batch,"Seu record Ã©: "+ pontuacaoMaxima+"pontos", larguraDispositivo/2 -140,alturaDispositivo/2 - gameOver.getHeight());
+			textoMelhorPontuacao.draw(batch,"Seu record é©: "+ pontuacaoMaxima+" pontos", larguraDispositivo/2 -140,alturaDispositivo/2 - gameOver.getHeight());
 
 		}
 		batch.end();
@@ -219,6 +237,7 @@ public class MyGdxGame extends ApplicationAdapter {
 
 	private void validarPontos()
 	{
+		//Validar pontos ao passaro passar cano
 		if(posicaoCanoHorizontal < 50-passaros[0].getWidth())
 		{
 			if(!passouCano)
