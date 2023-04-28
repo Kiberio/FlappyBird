@@ -25,11 +25,17 @@ public class MyGdxGame extends ApplicationAdapter {
 	private Texture canoBaixo;
 	private Texture canoTopo;
 	private Texture gameOver;
+	private Texture logo;
+	private Texture ring;
+	private Texture emerald;
+	private Texture coletavelAtual;
 
 	private ShapeRenderer shapeRenderer;
 	private Circle circuloPassaro;
 	private Rectangle retanguloCanoCima;
 	private Rectangle retanguloCanoBaixo;
+	private Circle circuloRing;
+	private Circle circuloEmerald;
 
 	private float larguraDispositivo;
 	private float alturaDispositivo;
@@ -45,6 +51,10 @@ public class MyGdxGame extends ApplicationAdapter {
 	private boolean passouCano = false;
 	private int estadoJogo = 0;
 	private float posicaoHorizontalPassaro = 0;
+	private float posicaoRingx = 0;
+	private float posicaoRingy = 0;
+	private float valorRing = 5;
+	private float valorEmerald = 10;
 
 	BitmapFont textoPontucao;
 	BitmapFont textoReiniciar;
@@ -80,14 +90,19 @@ public class MyGdxGame extends ApplicationAdapter {
 
 	private void inicializarTexturas() {
 		passaros = new Texture[3];
-		passaros[0] = new Texture("passaro1.png");
-		passaros[1] = new Texture("passaro2.png");
-		passaros[2] = new Texture("passaro3.png");
+		passaros[0] = new Texture("Sonic1-removebg-preview.png");
+		passaros[1] = new Texture("Sonic2-removebg-preview.png");
+		passaros[2] = new Texture("Sonic3-removebg-preview.png");
 
 		fundo = new Texture("fundo.png");
+		logo = new Texture("img.png");
 		canoBaixo = new Texture("cano_baixo_maior.png");
 		canoTopo = new Texture("cano_topo_maior.png");
 		gameOver = new Texture("game_over.png");
+		ring = new Texture("Ring.png");
+		emerald = new Texture("Esmeraldas.png");
+
+		coletavelAtual = emerald;
 	}
 
 	private void inicializaObjetos() {
@@ -98,11 +113,13 @@ public class MyGdxGame extends ApplicationAdapter {
 		alturaDispositivo = VIRTUAL_HEIGHT;
 		posicaoInicialVerticalPassaro = alturaDispositivo / 2;
 		posicaoCanoHorizontal = larguraDispositivo;
+		posicaoRingx = posicaoCanoHorizontal + larguraDispositivo/2;
+		posicaoRingy = larguraDispositivo/2;
 		espacoEntreCanos = 350;
 
 		textoPontucao = new BitmapFont();
 		textoPontucao.setColor(com.badlogic.gdx.graphics.Color.WHITE);
-		textoPontucao.getData().setScale(10);
+		textoPontucao.getData().setScale(5);
 
 		textoReiniciar = new BitmapFont();
 		textoReiniciar.setColor(com.badlogic.gdx.graphics.Color.GREEN);
@@ -116,6 +133,8 @@ public class MyGdxGame extends ApplicationAdapter {
 		circuloPassaro = new Circle();
 		retanguloCanoBaixo = new Rectangle();
 		retanguloCanoCima = new Rectangle();
+		circuloRing = new Circle();
+		circuloEmerald = new Circle();
 
 		somVoando = Gdx.audio.newSound(Gdx.files.internal("som_asa.wav"));
 		somColisao = Gdx.audio.newSound(Gdx.files.internal("som_batida.wav"));
@@ -141,12 +160,17 @@ public class MyGdxGame extends ApplicationAdapter {
 			if (toqueTela) {
 				gravidade = -15;
 				somVoando.play();
+
 			}
+			posicaoRingx -= Gdx.graphics.getDeltaTime() * 200;
 			posicaoCanoHorizontal -= Gdx.graphics.getDeltaTime() * 200;
 			if (posicaoCanoHorizontal < -canoTopo.getWidth()) {
 				posicaoCanoHorizontal = larguraDispositivo;
 				posicaoCanoVertical = random.nextInt(400) - 200;
 				passouCano = false;
+			}
+			if(posicaoRingx < -coletavelAtual.getWidth()/2){
+				resetColetavel();
 			}
 			if (posicaoInicialVerticalPassaro > 0 || toqueTela)
 				posicaoInicialVerticalPassaro = posicaoInicialVerticalPassaro - gravidade;
@@ -167,6 +191,7 @@ public class MyGdxGame extends ApplicationAdapter {
 				posicaoHorizontalPassaro = 0;
 				posicaoInicialVerticalPassaro = alturaDispositivo / 2;
 				posicaoCanoHorizontal = larguraDispositivo;
+				resetColetavel();
 			}
 		}
 	}
@@ -184,10 +209,24 @@ public class MyGdxGame extends ApplicationAdapter {
 		retanguloCanoCima.set(
 				posicaoCanoHorizontal, alturaDispositivo / 2 + espacoEntreCanos / 2 + posicaoCanoVertical,
 				canoTopo.getWidth(), canoTopo.getHeight());
+		circuloRing.set(
+				posicaoRingx - ((coletavelAtual.getWidth())/2),
+				posicaoRingy - ((coletavelAtual.getWidth())/2),
+				(coletavelAtual.getWidth())/2
+		);
+
+
 
 		boolean colidiuCanoCima = Intersector.overlaps(circuloPassaro, retanguloCanoCima);
 		boolean colidiuCanoBaixo = Intersector.overlaps(circuloPassaro, retanguloCanoBaixo);
+		boolean colidiuRing = Intersector.overlaps(circuloPassaro,circuloRing);
+		boolean colidiuEmerald = Intersector.overlaps(circuloPassaro,circuloEmerald);
 
+		if(colidiuRing == true || colidiuEmerald == true){
+			if(coletavelAtual == emerald) pontos +=valorEmerald;
+			else pontos += valorRing;
+			posicaoRingy = alturaDispositivo * 2;
+		}
 		if (colidiuCanoCima || colidiuCanoBaixo) {
 			if (estadoJogo ==1) {
 				somColisao.play();
@@ -207,12 +246,26 @@ public class MyGdxGame extends ApplicationAdapter {
 		batch.draw(canoTopo, posicaoCanoHorizontal, alturaDispositivo / 2 + espacoEntreCanos / 2 + posicaoCanoVertical);
 		textoPontucao.draw(batch, String.valueOf(pontos), larguraDispositivo / 2, alturaDispositivo -110);
 
+		if(estadoJogo == 0)
+		{
+			batch.draw(logo, larguraDispositivo / 2 - logo.getWidth()/2, alturaDispositivo /2);
+			textoReiniciar.draw(batch, "Toque para iniciar!", larguraDispositivo/2 -140, alturaDispositivo /2 - gameOver.getHeight()/2);
+		}
+
 		if(estadoJogo == 2)
 		{
 			batch.draw(gameOver, larguraDispositivo / 2 - gameOver.getWidth()/2, alturaDispositivo /2);
 			textoReiniciar.draw(batch, "Toque para reiniciar!", larguraDispositivo/2 -140, alturaDispositivo /2 - gameOver.getHeight()/2);
-			textoMelhorPontuacao.draw(batch,"Seu record Ã©: "+ pontuacaoMaxima+"pontos", larguraDispositivo/2 -140,alturaDispositivo/2 - gameOver.getHeight());
+			textoMelhorPontuacao.draw(batch,"Seu record é: "+ pontuacaoMaxima+" pontos", larguraDispositivo/2 -140,alturaDispositivo/2 - gameOver.getHeight());
 
+		}
+
+		if(estadoJogo == 1){
+			batch.draw(coletavelAtual,
+					posicaoRingx - (coletavelAtual.getWidth()),
+					posicaoRingy - (coletavelAtual.getHeight()),
+					coletavelAtual.getWidth(),
+					coletavelAtual.getHeight());
 		}
 		batch.end();
 	}
@@ -232,6 +285,18 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		if(variacao > 3)
 			variacao = 0;
+	}
+	private void resetColetavel(){
+	posicaoRingx = posicaoCanoHorizontal + canoBaixo.getWidth() + coletavelAtual.getWidth() + random.nextInt((int)larguraDispositivo - (coletavelAtual.getWidth()));
+	posicaoRingy = coletavelAtual.getHeight()/2 + random.nextInt((int) alturaDispositivo - coletavelAtual.getHeight() /2);
+
+	int randomColetavelNova = random.nextInt(100);
+	if(randomColetavelNova < 30){
+		coletavelAtual = emerald;
+	}
+	else{
+		coletavelAtual = ring;
+	}
 	}
 
 	@Override
