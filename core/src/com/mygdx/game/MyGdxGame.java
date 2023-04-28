@@ -234,7 +234,7 @@ public class MyGdxGame extends ApplicationAdapter {
 			}
 		}
 	}
-
+//
 	private void desenharTexturas()
 	{
 		batch.setProjectionMatrix(camera.combined);
