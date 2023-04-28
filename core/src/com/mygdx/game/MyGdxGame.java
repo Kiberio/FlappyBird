@@ -63,6 +63,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	Sound somVoando;
 	Sound somColisao;
 	Sound somPontuacao;
+	Sound somColetavel;
 
 	Preferences preferencias;
 
@@ -139,6 +140,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		somVoando = Gdx.audio.newSound(Gdx.files.internal("som_asa.wav"));
 		somColisao = Gdx.audio.newSound(Gdx.files.internal("som_batida.wav"));
 		somPontuacao = Gdx.audio.newSound(Gdx.files.internal("som_pontos.wav"));
+		somColetavel = Gdx.audio.newSound(Gdx.files.internal("Sonic_Moeda.mp3"));
 
 		preferencias = Gdx.app.getPreferences("FlappyBird");
 		pontuacaoMaxima = preferencias.getInteger("pontuacaoMaxima", 0);
@@ -226,6 +228,7 @@ public class MyGdxGame extends ApplicationAdapter {
 			if(coletavelAtual == emerald) pontos +=valorEmerald;
 			else pontos += valorRing;
 			posicaoRingy = alturaDispositivo * 2;
+			somColetavel.play();
 		}
 		if (colidiuCanoCima || colidiuCanoBaixo) {
 			if (estadoJogo ==1) {
