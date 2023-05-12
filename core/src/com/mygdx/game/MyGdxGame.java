@@ -31,6 +31,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	private Texture emerald;
 	private Texture coletavelAtual;
 
+
 	private ShapeRenderer shapeRenderer;
 	private Circle circuloPassaro;
 	private Rectangle retanguloCanoCima;
@@ -55,8 +56,9 @@ public class MyGdxGame extends ApplicationAdapter {
 	private float posicaoRingy = 0;
 	private float valorRing = 5;
 	private float valorEmerald = 10;
-	private int speed = 200;
+	private int speed = 400;
 	private float escalaColetavel = 0.5f;
+
 
 
 	BitmapFont textoPontucao;
@@ -190,10 +192,10 @@ public class MyGdxGame extends ApplicationAdapter {
 				posicaoInicialVerticalPassaro = posicaoInicialVerticalPassaro - gravidade;
 			gravidade++;
 
-			if(pontos > 20 && pontos < 40){
-				speed = 400;
+			if(pontos >= 20 && pontos < 40){
+				speed = 700;
 			}else if (pontos > 40){
-				speed = 600;
+				speed = 1300;
 			}
 
 			if (posicaoInicialVerticalPassaro < 0 || posicaoInicialVerticalPassaro > alturaDispositivo) {
@@ -219,7 +221,7 @@ public class MyGdxGame extends ApplicationAdapter {
 				posicaoInicialVerticalPassaro = alturaDispositivo / 2;
 				posicaoCanoHorizontal = larguraDispositivo;
 				resetColetavel();
-				speed = 200;
+				speed = 400;
 			}
 
 		}
@@ -244,17 +246,16 @@ public class MyGdxGame extends ApplicationAdapter {
 		//criando colisão do coletavel
 		circuloRing.set(
 				posicaoRingx - ((coletavelAtual.getWidth()*escalaColetavel)/2),
-				posicaoRingy - ((coletavelAtual.getWidth()*escalaColetavel)/2),
+				posicaoRingy - ((coletavelAtual.getHeight()*escalaColetavel)/2),
 				(coletavelAtual.getWidth()*escalaColetavel)/2
 		);
 		//boolean para detectar se o player colidiu com algo
 		boolean colidiuCanoCima = Intersector.overlaps(circuloPassaro, retanguloCanoCima);
 		boolean colidiuCanoBaixo = Intersector.overlaps(circuloPassaro, retanguloCanoBaixo);
 		boolean colidiuRing = Intersector.overlaps(circuloPassaro,circuloRing);
-		boolean colidiuEmerald = Intersector.overlaps(circuloPassaro,circuloEmerald);
 
 		//caso colida com um coletavel verificar qual coletavel é e somar os pontos
-		if(colidiuRing == true || colidiuEmerald == true){
+		if(colidiuRing == true){
 			if(coletavelAtual == emerald) pontos +=valorEmerald;
 			else pontos += valorRing;
 			posicaoRingy = alturaDispositivo * 2;
@@ -281,7 +282,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		//Desenha os canos
 		batch.draw(canoBaixo, posicaoCanoHorizontal, alturaDispositivo / 2 - canoBaixo.getHeight() - espacoEntreCanos / 2 + posicaoCanoVertical);
 		batch.draw(canoTopo, posicaoCanoHorizontal, alturaDispositivo / 2 + espacoEntreCanos / 2 + posicaoCanoVertical);
-		textoPontucao.draw(batch, String.valueOf(pontos), larguraDispositivo / 2, alturaDispositivo -110);
+		textoPontucao.draw(batch, String.valueOf(pontos), larguraDispositivo / 2, alturaDispositivo -140);
 
 		//Desenhar o logo do jogo no começo
 		if(estadoJogo == 0)
